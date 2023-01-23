@@ -3,7 +3,7 @@ use std::io::Read;
 fn main() {
     let mut memory: [u8; 1 << 16] = [0; 1 << 16];
     let mut mp: usize = 1 << 15;
-    let source: String = String::from(",");
+    let source: String = String::from(",[.,]");
     run(source, &mut memory, &mut mp);
 }
 
