@@ -1,16 +1,20 @@
 use std::io::Read;
 
 fn main() {
+    //let source = ",[ .,]"; // cat
+    let source = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++
+        [<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+."; // hello world
     let mut memory: [u8; 1 << 16] = [0; 1 << 16];
     let mut mp: usize = 1 << 15;
-    let source: String = String::from(",[.,]");
-    run(source, &mut memory, &mut mp);
+    run(source.to_string(), &mut memory, &mut mp);
 }
 
 fn run(source: String, memory: &mut [u8; 1 << 16], mp: &mut usize) {
-    let mut loop_stack = Vec::new();
+    let mut indexes: Vec<usize> = Vec::new();
+    let mut index: usize = 0;
 
-    for (mut i, c) in source.chars().enumerate() {
+    while index < source.len() {
+        let (_i, c) = source.chars().enumerate().nth(index).unwrap();
         match c {
             '>' => *mp += 1,
             '<' => *mp -= 1,
@@ -23,32 +27,22 @@ fn run(source: String, memory: &mut [u8; 1 << 16], mp: &mut usize) {
                 memory[*mp] = input[0];
             },
             '[' => {
-                if memory[*mp] == 0 {
-                    let mut depth = 1;
-                    while depth > 0 {
-                        i += 1;
-                        if source.chars().nth(i) == Some('[') {
-                            depth += 1;
-                        } else if source.chars().nth(i) == Some(']') {
-                            depth -= 1;
-                        }
-                    }
-                } else {
-                    loop_stack.push(i);
-                }
+                indexes.push(index);
             },
             ']' => {
-                if memory[*mp] == 0 {
-                    loop_stack.pop();
+                if memory[*mp] != 0 {
+                    index = indexes.pop().unwrap() - 1;
                 } else {
-                    let loop_start = loop_stack.last().cloned().expect("mismatched '[' and ']'");
-                    i = loop_start;
+                    indexes.pop();
                 }
             },
             _ => {}
         }
+        index += 1;
     }
-    if !loop_stack.is_empty() {
+
+    if !indexes.is_empty() {
+        dbg!(&indexes);
         panic!("end: mismatched '[' and ']'");
     }
 }
