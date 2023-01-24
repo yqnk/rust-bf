@@ -1,11 +1,27 @@
 use std::io::Read;
 use std::fs;
 use std::path::Path;
+use clap::Parser;
+
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+   /// Code to run immediately
+   #[arg(short, long)]
+   text: String,
+
+   /// Path to file.b containing brainfuck code to execute
+   #[arg(short, long, default_value_t = 1)]
+   file: u8,
+}
 
 fn main() -> Result<(), ()>{
     let mut memory: [u8; 1 << 16] = [0; 1 << 16];
     let mut mp: usize = 0;
     
+    // let args = Args::parse();
+
     let args: Vec<String> = std::env::args().collect();
     let mut i = 1; // skip the first argument (the program's name)
     while i < args.len() {
@@ -31,7 +47,17 @@ fn main() -> Result<(), ()>{
                 }
             }
             "-h" | "--help" => {
-                println!("i have to make a pretty man");
+                println!(
+"Brainfuck Interpreter (cc Yqnk)
+
+USAGE:
+    idkyet [OPTIONS]
+
+OPTIONS:
+    -t, --text <CODE>               Run <CODE> (Brainfuck code written between \"\" in the next argument)
+    -f, --file <PATH_TO_FILE.b>     Run bf code in <PATH_TO_FILE.b>
+    -h, --help                      Print help information"
+                        );
             }
             _ => {}
         }
