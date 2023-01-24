@@ -3,7 +3,7 @@ use std::fs;
 use std::path::Path;
 use clap::Parser;
 
-/// Simple program to greet a person
+/// desc
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
