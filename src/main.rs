@@ -1,14 +1,46 @@
 use std::io::Read;
+use std::fs;
+use std::path::Path;
 
-fn main() {
-    //let source = ",[ .,]"; // cat
-    let source = ">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+."; // hello world
-    let mut memory: [u8; 1 << 18] = [0; 1 << 18];
-    let mut mp: usize = 1 << 17;
-    run(source.to_string(), &mut memory, &mut mp);
+fn main() -> Result<(), ()>{
+    let mut memory: [u8; 1 << 16] = [0; 1 << 16];
+    let mut mp: usize = 0;
+    
+    let args: Vec<String> = std::env::args().collect();
+    let mut i = 1; // skip the first argument (the program's name)
+    while i < args.len() {
+        match args[i].as_str() {
+            "-t" | "--text" => {
+                i += 1;
+                if i >= args.len() {
+                    return Err(())
+                } else {
+                    run(args[i].to_owned(), &mut memory, &mut mp);
+                }
+            }
+            "-f" | "--file" => {
+                i += 1;
+                let path: &Path = Path::new(args[i].as_str());
+                if i >= args.len() {
+                    panic!("1");
+                } else if path.exists() {
+                    let content = fs::read_to_string(path).expect("error occured while reading file (see --help)");
+                    run(content, &mut memory, &mut mp);
+                } else {
+                    return Err(())
+                }
+            }
+            "-h" | "--help" => {
+                println!("i have to make a pretty man");
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    Ok(())
 }
 
-fn run(source: String, memory: &mut [u8; 1 << 18], mp: &mut usize) {
+fn run(source: String, memory: &mut [u8; 1 << 16], mp: &mut usize) {
     let mut indexes: Vec<usize> = Vec::new();
     let mut index: usize = 0;
 
