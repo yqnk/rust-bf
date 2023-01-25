@@ -1,67 +1,57 @@
 use std::io::Read;
 use std::fs;
 use std::path::Path;
-use clap::Parser;
-
-/// desc
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-   /// Code to run immediately
-   #[arg(short, long)]
-   text: String,
-
-   /// Path to file.b containing brainfuck code to execute
-   #[arg(short, long, default_value_t = 1)]
-   file: u8,
-}
 
 fn main() -> Result<(), ()>{
     let mut memory: [u8; 1 << 16] = [0; 1 << 16];
-    let mut mp: usize = 0;
-    
-    // let args = Args::parse();
+    let mut mp: usize = 1 << 15;
 
     let args: Vec<String> = std::env::args().collect();
-    let mut i = 1; // skip the first argument (the program's name)
-    while i < args.len() {
-        match args[i].as_str() {
-            "-t" | "--text" => {
-                i += 1;
-                if i >= args.len() {
-                    return Err(())
-                } else {
-                    run(args[i].to_owned(), &mut memory, &mut mp);
-                }
-            }
-            "-f" | "--file" => {
-                i += 1;
-                let path: &Path = Path::new(args[i].as_str());
-                if i >= args.len() {
-                    panic!("1");
-                } else if path.exists() {
-                    let content = fs::read_to_string(path).expect("error occured while reading file (see --help)");
-                    run(content, &mut memory, &mut mp);
-                } else {
-                    return Err(())
-                }
-            }
-            "-h" | "--help" => {
-                println!(
+    if 1 == args.len() {
+        // live interpreter
+    } else {
+
+        let mut i = 1; // skip the first argument (the program's name)
+        while i < args.len() {
+            match args[i].as_str() {
+                "-h" | "--help" => {
+                    println!(
 "Brainfuck Interpreter (cc Yqnk)
 
 USAGE:
-    idkyet [OPTIONS]
+    rust-bf [OPTIONS]
 
 OPTIONS:
     -t, --text <CODE>               Run <CODE> (Brainfuck code written between \"\" in the next argument)
     -f, --file <PATH_TO_FILE.b>     Run bf code in <PATH_TO_FILE.b>
     -h, --help                      Print help information"
-                        );
+                            );
+                    i += args.len();
+                }
+                "-t" | "--text" => {
+                    i += 1;
+                    if i >= args.len() {
+                        return Err(())
+                    } else {
+                        run(args[i].to_owned(), &mut memory, &mut mp);
+                    }
+                }
+                "-f" | "--file" => {
+                    i += 1;
+                    let path: &Path = Path::new(args[i].as_str());
+                    if i >= args.len() {
+                        panic!("1");
+                    } else if path.exists() {
+                        let content = fs::read_to_string(path).expect("error occured while reading file (see --help)");
+                        run(content, &mut memory, &mut mp);
+                    } else {
+                        return Err(())
+                    }
+                }
+                _ => {}
             }
-            _ => {}
+            i += 1;
         }
-        i += 1;
     }
     Ok(())
 }
